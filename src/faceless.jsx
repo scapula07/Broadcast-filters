@@ -1,7 +1,7 @@
 import { useEffect, useState,useRef } from 'react';
 import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
-import { Color, Euler, Matrix4 } from 'three';
-import { Canvas, useFrame, useGraph } from '@react-three/fiber';
+import { Color, Euler, Matrix4,TextureLoader } from 'three';
+import { Canvas, useFrame, useGraph,useLoader,useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { useDropzone } from 'react-dropzone';
 import * as Broadcast from "@livepeer/react/broadcast";
@@ -132,6 +132,7 @@ export default function Faceless() {
                     {/* <canvas id="canvas" width="1000" height="1000" ref={canvasRef} ></canvas> */}
 
                     <Canvas style={{ height: 600 }} camera={{ fov: 25 }} shadows className='relative' ref={canvasRef}>
+                         <Background />
                         <ambientLight intensity={0.5} />
                         <pointLight position={[10, 10, 10]} color={new Color(1, 1, 0)} intensity={0.5} castShadow />
                         <pointLight position={[-10, 0, 10]} color={new Color(1, 0, 0)} intensity={0.5} castShadow />
@@ -193,4 +194,13 @@ function Avatar({ url }) {
     });
   
     return <primitive object={scene} position={[0, -1.75, 3]} />
+  }
+
+
+
+  function Background() {
+    const texture = useLoader(TextureLoader,image); // Replace with the path to your image
+    const { scene } = useThree();
+    scene.background = texture;
+    return null;
   }
