@@ -181,7 +181,7 @@ export default function Demo() {
                             <Broadcast.Video
                                 title="Livestream"
                                 style={{ height: "1000", width: "1000" }}
-                                className={isSelect?.length>0?"hidden":"relative block"}
+                                className={isSelect?.length>0?"hidden":"relative "}
                                 ref={videoRef} 
                             />
 
@@ -230,7 +230,7 @@ export default function Demo() {
                     }
 
 
-                          <div className={isCollapse?'absolute bg-red-500 w-6 h-10 top-0 py-0.5':'absolute bg-red-500 w-14  h-full top-0 py-2 overflow-y-hidden' }>
+                          <div className={isCollapse?'absolute bg-slate-400 bg-opacity-50 rounded-tr-2xl  rounded-br-2xl w-6 h-10 top-0 py-0.5':'absolute bg-slate-400 bg-opacity-50 w-14  h-full top-0 py-2 overflow-y-hidden' }>
                                <h5 className={'w-full flex justify-end'}>
                                   {isCollapse?
                                      <RiArrowRightDoubleLine
@@ -292,7 +292,7 @@ export default function Demo() {
                                                     onMouseOut={()=>setSelectedVr("")}
                                                     
                                                     >
-                                                    <h5 className='text-3xl'
+                                                    <h5 className='text-xl text-white'
                                                       onClick={()=>setisSelected(tab?.title) ||tab?.click()}
                                                     >
                                                        {tab?.icon}
@@ -382,7 +382,7 @@ export default function Demo() {
 
 const Selector=({selected,videoRef,videoElement,canvasRef })=>{
         let data
-        const [bgImage,setImage]=useState(image)
+        const [bgImage,setImage]=useState("")
         const backgroundImage = new Image(480, 270);
         
     
@@ -412,11 +412,12 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
                   console.log('You selected apple.');
                   img=src
                   startVirtualBackground()
+                  setImage(src)
                   break;
                 case 'DeepAR filters':
                   console.log('You selected banana.');
                   switchFilter(src?.mdl)
-                  
+                  setImage(src)
                   break;
           
                 default:
@@ -522,19 +523,19 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
         >
                 {data?.map((src)=>{
                         return(
-                     <div className='border border-white p-0.5  rounded-lg flex justify-center items-center w-full'
+                     <div className={img ===src?'border-2 border-green-500 p-1  rounded-lg flex justify-center items-center w-full':"border border-white p-0.5  rounded-lg flex justify-center items-center w-full"}
                         onClick={()=>change(src)}
                         
                         >
                             {src?.img?.length != undefined?
                                     <img 
                                     src={src?.img}
-                                    className="h-10"
+                                    className="h-9 w-8 rounded-full"
                                     />
                                     :
                                     <img 
                                     src={src}
-                                    className="h-10"
+                                    className={img ===src?"h-6 w-6 rounded-full":"h-10"}
                                     />
 
 
