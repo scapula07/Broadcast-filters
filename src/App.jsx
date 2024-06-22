@@ -4,14 +4,16 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Background from './background'
 import Faceless from './faceless'
+import Demo from './demo'
 function App() {
   const [count, setCount] = useState(0)
 
 
   return (
-     <div className='w-full  '>
+     <div className='w-full '>
       {/* <Background /> */}
-      <Faceless />
+      {/* <Faceless /> */}
+      <Demo />
        
      </div>
   )
