@@ -6,16 +6,40 @@ import { EnableVideoIcon, StopIcon } from "@livepeer/react/assets";
 import { useBroadcastContext, useStore } from "@livepeer/react/broadcast";
 import { useState } from 'react';
 import { RiArrowRightSLine ,RiArrowLeftSLine,RiArrowRightDoubleLine,RiArrowLeftDoubleLine} from "react-icons/ri";
-import { Tooltip as ReactTooltip } from "react-tooltip";
 import { TbBackground } from "react-icons/tb";
 import { MdFace } from "react-icons/md";
+import { FaMasksTheater } from "react-icons/fa6";
+import { Tooltip as ReactTooltip } from "react-tooltip";
 import { backgrounds } from './data/backgrounds';
+import { filters } from './data/filters';
 import toast, { Toaster } from 'react-hot-toast';
 import { ClipLoader } from 'react-spinners';
-
+import * as deepar from 'deepar';
+import { FaceLandmarker, FilesetResolver } from "@mediapipe/tasks-vision";
+import { Color, Euler, Matrix4,TextureLoader } from 'three';
+import { Canvas, useFrame, useGraph,useLoader,useThree } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
+import { useDropzone } from 'react-dropzone';
 
 let net=null
 let img=""
+let deepAR;
+let faceLandmarker;
+let lastVideoTime = -1;
+let blendshapes = [];
+let rotation;
+let headMesh= [];
+
+const options = {
+  baseOptions: {
+    modelAssetPath: `https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task`,
+    delegate: "GPU"
+  },
+  numFaces: 1,
+  runningMode: "VIDEO",
+  outputFaceBlendshapes: true,
+  outputFacialTransformationMatrixes: true,
+};
 export default function Demo() {
        
             const videoRef = useRef(null);
@@ -29,6 +53,7 @@ export default function Demo() {
             const [isSelect,setisSelected]=useState("")
 
             const [isLoading,setLoading]=useState(true)
+            const [url, setUrl] = useState("https://models.readyplayer.me/6460d95f9ae10f45bffb2864.glb?morphTargets=ARKit&textureAtlas=1024");
 
           
 
@@ -66,7 +91,83 @@ export default function Demo() {
                    }
 
             }
-            console.log(net,"net")
+         
+            const setUpDeeepAr=async()=>{
+                setLoading(true)
+                try{
+                    deepAR = await deepar.initialize({
+                        licenseKey: 'f87b53cd1948b8f5419fe69b5c2993d78f5858d64c681f0996c39147602ab204cbd19f596313244b', 
+                        canvas:canvasRef.current,
+                        effect: 'https://cdn.jsdelivr.net/npm/deepar/effects/aviators' 
+                     });
+                setLoading(false)
+                }catch(e){
+                    console.log(e)
+                    setLoading(false)
+                    setisSelected("")
+                    toast.error("Error loading model",{duration:3000})
+                }
+            
+            
+             }
+             const setupMediaPipe = async () => {
+                setLoading(true)
+                videoElement = videoRef.current;
+                try{
+                    const filesetResolver = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
+                    faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, options);
+            
+                    navigator.mediaDevices.getUserMedia({
+                      video: { width: 1280, height: 720 },
+                      audio: false,
+                    }).then(function (stream) {
+                         console.log(stream,"Stremm")
+                        videoElement.srcObject = stream;
+                        videoElement.addEventListener("loadeddata", predict);
+                    });
+                 setLoading(false)
+                }catch(e){
+                 console.log(e)
+                 setLoading(false)
+                 setisSelected("")
+                 toast.error("Error loading model",{duration:3000})
+                }
+              }
+
+
+              const predict = async () => {
+                const canvasElement = canvasRef.current; 
+                let nowInMs = Date.now();
+                if (lastVideoTime !== videoRef.current.currentTime) {
+                  lastVideoTime = videoRef.current.currentTime;
+                  const faceLandmarkerResult = faceLandmarker.detectForVideo(videoRef.current, nowInMs);
+            
+                  if (faceLandmarkerResult.faceBlendshapes && faceLandmarkerResult.faceBlendshapes.length > 0 && faceLandmarkerResult.faceBlendshapes[0].categories) {
+                    blendshapes = faceLandmarkerResult.faceBlendshapes[0].categories;
+            
+                    const matrix = faceLandmarkerResult?.facialTransformationMatrixes?.[0]?.data ? new Matrix4().fromArray(faceLandmarkerResult.facialTransformationMatrixes[0].data) : null;
+                    rotation = new Euler().setFromRotationMatrix(matrix);
+        
+                    const stream = canvasElement.captureStream(30); 
+                 
+        
+                   }
+                }
+            
+                window.requestAnimationFrame(predict);
+              }
+            
+             const { getRootProps } = useDropzone({
+                onDrop: files => {
+                  const file = files[0];
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setUrl(reader.result);
+                  }
+                  reader.readAsDataURL(file);
+                }
+            });
+        
 
       
          
@@ -80,7 +181,7 @@ export default function Demo() {
                             <Broadcast.Video
                                 title="Livestream"
                                 style={{ height: "1000", width: "1000" }}
-                                className="relative hidden"
+                                className={isSelect?.length>0?"hidden":"relative block"}
                                 ref={videoRef} 
                             />
 
@@ -104,8 +205,29 @@ export default function Demo() {
                     </Broadcast.EnabledIndicator>
                     </Broadcast.EnabledTrigger>
 
+                    {["Faceless streaming"]?.includes(isSelect)?
+                     
+                      <>
+                    
+                        <Canvas style={{ height: 600 }} camera={{ fov: 25 }} shadows className='relative w-full h-1/2 -z-10' ref={canvasRef}>
+                            <Background />
+                            <ambientLight intensity={0.5} />
+                            <pointLight position={[10, 10, 10]} color={new Color(1, 1, 0)} intensity={0.5} castShadow />
+                            <pointLight position={[-10, 0, 10]} color={new Color(1, 0, 0)} intensity={0.5} castShadow />
+                            <pointLight position={[0, 0, 10]} intensity={0.5} castShadow />
+                            <Avatar url={url} />
+                       </Canvas>
 
-                      <canvas id="canvas"  ref={canvasRef} className="relative w-full -z-10"></canvas>
+                        <div {...getRootProps({ className: 'dropzone' })} className=" w-full h-1/2 absolute top-0 "
+                             data-tooltip-id={"my-tooltip-2"}
+                          >
+                            
+                        </div>
+                    </>
+                        :
+                        <canvas id="canvas"  ref={canvasRef} className="relative w-full h-full -z-10"></canvas>
+                        
+                    }
 
 
                           <div className={isCollapse?'absolute bg-red-500 w-6 h-10 top-0 py-0.5':'absolute bg-red-500 w-14  h-full top-0 py-2 overflow-y-hidden' }>
@@ -131,25 +253,33 @@ export default function Demo() {
                               {!isCollapse&&isSelect?.length ===0&&
                                     <div className='w-full h-full py-4 flex flex-col overflow-y-scroll px-2 space-y-4'>
                                         {
-                                            [  {
-                                                icon:      <TbBackground />,
+                                            [  
+                                            {
+                                                icon:<TbBackground />,
                                                 title: "Virtual backgrounds",
                                                 click:()=>setUpBodyPix()
                                                 
 
                                             },
                                             {
-                                                icon:      <MdFace  />,
-                                                title: "Face filters",
+                                                icon:<MdFace  />,
+                                                title: "DeepAR filters",
+                                                click:()=>setUpDeeepAr()
+
+                                            },
+                                            {
+                                                icon:<FaMasksTheater />,
+                                                title:"Mask filters",
                                                 click:()=>{}
 
                                             },
                                             {
-                                                icon:      <MdFace  />,
+                                                icon:<MdFace  />,
                                                 title:"Faceless streaming",
-                                                click:()=>{}
+                                                click:()=>setupMediaPipe()
 
                                             },
+
                                             
                                         
                                                 
@@ -182,17 +312,27 @@ export default function Demo() {
                                    {!isCollapse&&isSelect?.length >0&&
                                         <>
                                                {!isLoading?
-                                                   <Selector
-                                                   selected={isSelect}
-                                                  
-                                                   videoElement={videoElement}
-                                                   videoRef={videoRef}
-                                                   canvasRef={ canvasRef }
-                                                  />
-                                                  :
-                                                  <div className='w-full flex justify-center py-2'>
+                                                   
+                                                    <>
+                                                      {["Virtual backgrounds","DeepAR filters","Mask filters"]?.includes(isSelect)?
+                                                             <Selector
+                                                             selected={isSelect}
+                                                             
+                                                             videoElement={videoElement}
+                                                             videoRef={videoRef}
+                                                             canvasRef={ canvasRef }
+                                                          />
+                                                          :
+                                                          <>
+                                                          </>
+                                                        }
+                                                      
+                                                     </>
+                                              
+                                                     :
+                                                    <div className='w-full flex justify-center py-2'>
                                                         <ClipLoader color='white' size={10}/>
-                                                  </div>
+                                                   </div>
                                                 
 
                                                } 
@@ -219,6 +359,12 @@ export default function Demo() {
                     content="Virtual Filters"
                     className='text-sm'
                 />
+                <ReactTooltip
+                    id="my-tooltip-2"
+                    place="bottom"
+                    content="Drag & drop avater "
+                    className='text-sm'
+                />
                     <ReactTooltip
                     id={selectVr}
                     place="bottom"
@@ -235,19 +381,19 @@ export default function Demo() {
 
 
 const Selector=({selected,videoRef,videoElement,canvasRef })=>{
-         
-            const [bgImage,setImage]=useState(image)
-            const backgroundImage = new Image(480, 270);
+        let data
+        const [bgImage,setImage]=useState(image)
+        const backgroundImage = new Image(480, 270);
         
-         console.log(selected,"s;ll")
-         let data
+    
          switch (selected) {
             case 'Virtual backgrounds':
               console.log('You selected apple.');
               data=backgrounds
               break;
-            case 'Face filters':
+            case 'DeepAR filters':
               console.log('You selected banana.');
+              data=filters
               break;
       
             default:
@@ -260,15 +406,32 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
           },[])
 
 
-          const changeBackground=(src)=>{
-            img=src
-            startVirtualBackground()
+          const change=(src)=>{
+             switch (selected) {
+                case 'Virtual backgrounds':
+                  console.log('You selected apple.');
+                  img=src
+                  startVirtualBackground()
+                  break;
+                case 'DeepAR filters':
+                  console.log('You selected banana.');
+                  switchFilter(src?.mdl)
+                  
+                  break;
+          
+                default:
+                  console.log('Unknown fruit.');
+                  data=backgrounds
+              }
+
+
+
           }
 
 
           async function startVirtualBackground() {
-            videoElement = videoRef.current;
-            backgroundImage.src =img;
+                videoElement = videoRef.current;
+                backgroundImage.src =img;
             try{
                 async function updateCanvas() {
                     
@@ -303,7 +466,7 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
                   const opacity = 0.5; 
       
                   if (mask) {
-                           /// OLD
+                        
                       ctx.putImageData(mask, 0, 0);
                       ctx.globalCompositeOperation = 'source-in';
       
@@ -340,6 +503,16 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
             }
            }
     
+
+
+           const switchFilter=async(mdl)=>{
+                try{
+                    await deepAR.switchEffect(mdl);
+                }catch(e){
+                    console.log(e)
+                }
+           }
+           
             
           
         
@@ -349,14 +522,24 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
         >
                 {data?.map((src)=>{
                         return(
-                        <div className='border border-white p-0.5  rounded-lg flex justify-center items-center w-full'
-                        onClick={()=>changeBackground(src)}
+                     <div className='border border-white p-0.5  rounded-lg flex justify-center items-center w-full'
+                        onClick={()=>change(src)}
                         
                         >
-                            <img 
-                            src={src}
-                            className="h-10"
-                            />
+                            {src?.img?.length != undefined?
+                                    <img 
+                                    src={src?.img}
+                                    className="h-10"
+                                    />
+                                    :
+                                    <img 
+                                    src={src}
+                                    className="h-10"
+                                    />
+
+
+                            }
+                       
                         
                         
 
@@ -369,3 +552,45 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
     </div>
       )
 }
+
+
+
+function Avatar({ url }) {
+    const { scene } = useGLTF(url);
+    const { nodes } = useGraph(scene);
+  
+    useEffect(() => {
+      if (nodes.Wolf3D_Head) headMesh.push(nodes.Wolf3D_Head);
+      if (nodes.Wolf3D_Teeth) headMesh.push(nodes.Wolf3D_Teeth);
+      if (nodes.Wolf3D_Beard) headMesh.push(nodes.Wolf3D_Beard);
+      if (nodes.Wolf3D_Avatar) headMesh.push(nodes.Wolf3D_Avatar);
+      if (nodes.Wolf3D_Head_Custom) headMesh.push(nodes.Wolf3D_Head_Custom);
+    }, [nodes, url]);
+  
+    useFrame(() => {
+      if (blendshapes.length > 0) {
+        blendshapes.forEach(element => {
+          headMesh.forEach(mesh => {
+            let index = mesh.morphTargetDictionary[element.categoryName];
+            if (index >= 0) {
+              mesh.morphTargetInfluences[index] = element.score;
+            }
+          });
+        });
+  
+        nodes.Head.rotation.set(rotation.x, rotation.y, rotation.z);
+        nodes.Neck.rotation.set(rotation.x / 5 + 0.3, rotation.y / 5, rotation.z / 5);
+        nodes.Spine2.rotation.set(rotation.x / 10, rotation.y / 10, rotation.z / 10);
+      }
+    });
+  
+    return <primitive object={scene} position={[0, -1.75, 3]} />
+  }
+
+
+  function Background() {
+    const texture = useLoader(TextureLoader,image); 
+    const { scene } = useThree();
+    scene.background = texture;
+    return null;
+  }
