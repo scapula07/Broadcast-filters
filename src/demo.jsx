@@ -5,7 +5,7 @@ import image from "./assets/bg.jpeg";
 import { EnableVideoIcon, StopIcon } from "@livepeer/react/assets";
 import { useBroadcastContext, useStore } from "@livepeer/react/broadcast";
 import { useState } from 'react';
-import { RiArrowRightSLine ,RiArrowLeftSLine,RiArrowRightDoubleLine,RiArrowLeftDoubleLine} from "react-icons/ri";
+import { RiArrowRightWideFill,RiArrowLeftWideFill} from "react-icons/ri";
 import { TbBackground } from "react-icons/tb";
 import { MdFace } from "react-icons/md";
 import { FaMasksTheater } from "react-icons/fa6";
@@ -40,6 +40,11 @@ const options = {
   outputFaceBlendshapes: true,
   outputFacialTransformationMatrixes: true,
 };
+
+
+
+
+
 export default function Demo() {
        
             const videoRef = useRef(null);
@@ -230,25 +235,25 @@ export default function Demo() {
                     }
 
 
-                          <div className={isCollapse?'absolute bg-slate-400 bg-opacity-50 rounded-tr-2xl  rounded-br-2xl w-6 h-10 top-0 py-0.5':'absolute bg-slate-400 bg-opacity-50 w-14  h-full top-0 py-2 overflow-y-hidden' }>
-                               <h5 className={'w-full flex justify-end'}>
-                                  {isCollapse?
-                                     <RiArrowRightDoubleLine
-                                         className='text-white font-semibold text-4xl'
-                                         onClick={()=>setCollapseTab(false)}
-                                          data-tooltip-id="my-tooltip-1"
-                                         />
-                                         :
-                                       
-                                        <RiArrowLeftDoubleLine
-                                            className='text-white font-semibold text-2xl'
-                                            onClick={()=>isSelect?.length >0 ?setisSelected(""):setCollapseTab(true)}
-                                            />
-                                      
-                                       
-                                  }
-                                 
-                              </h5>
+                          <div className={isCollapse?'absolute bg-slate-400 bg-opacity-50 rounded-tr-2xl  rounded-br-2xl w-6 h-20 top-0 py-0.5':'absolute bg-slate-400 bg-opacity-50 w-14  h-full top-0 py-2 overflow-y-hidden' }>
+                            <h5 className={isCollapse?'w-full flex items-center h-full':'w-full flex justify-end'}>
+                                        {isCollapse?
+                                            <RiArrowRightWideFill
+                                                className='text-white font-semibold text-4xl'
+                                                onClick={()=>setCollapseTab(false)}
+                                                data-tooltip-id="my-tooltip-1"
+                                                />
+                                                :
+                                            
+                                            <RiArrowLeftWideFill
+                                                className='text-white font-semibold text-2xl'
+                                                onClick={()=>isSelect?.length >0 ?setisSelected(""):setCollapseTab(true)}
+                                                />
+                                            
+                                            
+                                        }
+                                    
+                                </h5>
 
                               {!isCollapse&&isSelect?.length ===0&&
                                     <div className='w-full h-full py-4 flex flex-col overflow-y-scroll px-2 space-y-4'>
@@ -407,17 +412,18 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
 
 
           const change=(src)=>{
+            img=""
              switch (selected) {
                 case 'Virtual backgrounds':
                   console.log('You selected apple.');
                   img=src
-                  startVirtualBackground()
+                  startVirtualBackground(img)
                   setImage(src)
                   break;
                 case 'DeepAR filters':
                   console.log('You selected banana.');
                   switchFilter(src?.mdl)
-                  setImage(src)
+                  setImage(src?.img)
                   break;
           
                 default:
@@ -430,7 +436,7 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
           }
 
 
-          async function startVirtualBackground() {
+          async function startVirtualBackground(img) {
                 videoElement = videoRef.current;
                 backgroundImage.src =img;
             try{
@@ -523,7 +529,7 @@ const Selector=({selected,videoRef,videoElement,canvasRef })=>{
         >
                 {data?.map((src)=>{
                         return(
-                     <div className={img ===src?'border-2 border-green-500 p-1  rounded-lg flex justify-center items-center w-full':"border border-white p-0.5  rounded-lg flex justify-center items-center w-full"}
+                     <div className={bgImage ===src || bgImage===src?.img?'border-2 border-green-500 p-1  rounded-lg flex justify-center items-center w-full':"border border-white p-0.5  rounded-lg flex justify-center items-center w-full"}
                         onClick={()=>change(src)}
                         
                         >
@@ -595,3 +601,7 @@ function Avatar({ url }) {
     scene.background = texture;
     return null;
   }
+
+
+
+
