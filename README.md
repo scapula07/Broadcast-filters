@@ -24,7 +24,7 @@ To install the SDK package from npm, use the following command:
 Browser Compatibility: Supports all major browsers.
 
 ## SDK Example Usage
-```
+```js
     import {BroadcastAR} from 'livepeerjs-player-filters'
     import * as Broadcast from "@livepeer/react/broadcast";
     import { getIngest } from "@livepeer/react/external";
@@ -52,5 +52,26 @@ Browser Compatibility: Supports all major browsers.
         
     </BroadcastAR>
 
+
+```
+##### Create the opt params with the right mode, 'BACKGROUND','FACE','DEEPAR'
+
+```js
+     const opt=[
+      {
+        mode:"BACKGROUND",
+        data:backgrounds
+      },
+     {
+       mode:"FACE",
+       data:backgrounds
+      },
+      {
+        mode:"DEEPAR",
+        data:filters,
+        liscence_key:"f87b53cd1948b8f5419fe69b5c2993d78f5858d64c681f0996c39147602ab204cbd19f596313244b"
+
+      }
+   ]
 
 ```
