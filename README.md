@@ -4,8 +4,9 @@
 2. Installation
 3. Features
 4. Customization
-5. Code Implementation Tutorial
-6. Resources
+5. DEEPAR and Other integration
+6. Code Implementation Tutorial
+7. Resources
 
 ## Overview
 This SDK/package is your go-to solution for enhancing the Livepeer Broadcast components with virtual filters and augmented reality such as Virtual backgrounds, AR filters, Faceless streaming etc.Whether you're a developer looking to build Tiktok/snapchat clones or build out Virtual-try-on products on the Livepeer infrastruture, this code sample and SDK will help you achieve these in a short time.
@@ -18,4 +19,38 @@ Plugin:[Livepeerjs-ar](https://github.com/livepeer-ssai/IMA-Adwrapper-Livepeer)
 To install the SDK package from npm, use the following command:
 ```
    npm install 
+```
+## Requirements
+Browser Compatibility: Supports all major browsers.
+
+## SDK Example Usage
+```
+    import {BroadcastAR} from 'livepeerjs-player-filters'
+    import * as Broadcast from "@livepeer/react/broadcast";
+    import { getIngest } from "@livepeer/react/external";
+
+    <BroadcastAR
+         videoRef={videoRef}
+         isSelect={isSelect}
+         setisSelected={setisSelected}
+         opt={opt}
+         className="w-1/2 h-full"
+       >
+         <Broadcast.Root ingestUrl={getIngest("1606-8tzu-37cl-1wsj")}>
+               <Broadcast.Container className='w-full'>
+                 
+                      <Broadcast.Video
+                          title="Livestream"
+                          style={{ height: "100%", width: "100%" }}
+                          className={isSelect?.length>0?"hidden":"relative "}
+                          ref={videoRef} 
+                          
+                          
+                      />
+                  </Broadcast.Container>
+             </Broadcast.Root>
+        
+    </BroadcastAR>
+
+
 ```
