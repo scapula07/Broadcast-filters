@@ -10,8 +10,8 @@ import { TbBackground } from "react-icons/tb";
 import { MdFace } from "react-icons/md";
 import { FaMasksTheater } from "react-icons/fa6";
 import { Tooltip as ReactTooltip } from "react-tooltip";
-import { backgrounds } from './data/backgrounds';
-import { filters } from './data/filters';
+import { backgrounds } from '../data/backgrounds';
+import { filters } from '../data/filters';
 import toast, { Toaster } from 'react-hot-toast';
 import { ClipLoader } from 'react-spinners';
 import * as deepar from 'deepar';
@@ -20,6 +20,9 @@ import { Color, Euler, Matrix4,TextureLoader } from 'three';
 import { Canvas, useFrame, useGraph,useLoader,useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
 import { useDropzone } from 'react-dropzone';
+import { PiVirtualRealityFill } from "react-icons/pi";
+
+
 
 let net=null
 let img=""
@@ -267,7 +270,9 @@ export default function Demo() {
 
                                             },
                                             {
-                                                icon:<MdFace  />,
+                                                icon:<PiVirtualRealityFill
+                                                        className='text-blue-600'
+                                                      />,
                                                 title: "DeepAR filters",
                                                 click:()=>setUpDeeepAr()
 
