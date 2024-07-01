@@ -17,11 +17,11 @@ export const livepeerAR= {
             }
 
      },
-     setUpDeeepAr:async function () {
+     setUpDeeepAr:async function (canvasRef) {
         try{
 
            const deepAR = await deepar.initialize({
-                licenseKey: 'f87b53cd1948b8f5419fe69b5c2993d78f5858d64c681f0996c39147602ab204cbd19f596313244b', 
+                licenseKey: 'f308e07f9ee4bb4f9a2b9ba9db89cbfc303a89830dfb0c94a7f46b3cba7b72f4356f51ad6c22b8f9', 
                 canvas:canvasRef.current,
                 effect: 'https://cdn.jsdelivr.net/npm/deepar/effects/aviators' 
              });

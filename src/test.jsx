@@ -92,7 +92,7 @@ export default function Test() {
             const setUpDeeepAr=async()=>{
                    setLoading(true)
                 try{
-                    deepAR = await livepeerAR.setUpDeeepAr()
+                    deepAR = await livepeerAR.setUpDeeepAr(canvasRef)
                     setLoading(false)
                 }catch(e){
                  
@@ -114,7 +114,7 @@ export default function Test() {
                       video: { width: 1280, height: 720 },
                       audio: false,
                     }).then(function (stream) {
-                         console.log(stream,"Stremm")
+                       
                         videoElement.srcObject = stream;
                         videoElement.addEventListener("loadeddata", predict);
                     });
