@@ -107,7 +107,7 @@ Browser Compatibility: Supports all major browsers.
       ]
 ```
 
-3. AR Faceless streaming  
+3. AR Faceless streaming: this feature is for streamers that want to maintain or remain anonymous. With the sdk , a streamer can simply upload or drag and drop is Avatar into the Broadcast component. The Avatar mimicks every face motion and gestures of the user.
 
 
 
