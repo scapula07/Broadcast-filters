@@ -78,9 +78,27 @@ Browser Compatibility: Supports all major browsers.
 ```
 
 ## Features
-1. Virtual backgrounds
-2. AR filters- Effects and face(mask) filters
-3. AR Faceless streaming  
+1. Virtual backgrounds: with the sdk you can change your video background while streaming to any image you want,by passing an array of images to the wrapper and mode:'BACKGROUND'
+   ```js
+      import bg1 from "../assets/bg.jpeg"
+      import bg2 from "../assets/bg1.jpg"
+      import bg3 from "../assets/bg2.jpg"
+      import bg4 from "../assets/bg3.jpg"
+      import bg5 from "../assets/bg4.jpg"
+      import bg6 from "../assets/bg5.jpg"
+      
+      export const backgrounds=[
+          bg1,
+          bg2,
+          bg3,
+          bg4,
+          bg5,
+          bg6
+      ]
+
+   ```
+3. AR filters- Effects and face(mask) filters
+4. AR Faceless streaming  
 
 
 
