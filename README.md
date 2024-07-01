@@ -1,4 +1,4 @@
-# Documentation - Client-side AI compute:A plugin for Livepeer Broadcast component (powered by Livepeer)
+# Documentation - Client-side AI compute[Livepeerjs-AR]:A plugin for Livepeer Broadcast component (powered by Livepeer)
 ## Content
 1. Overview
 2. Installation
@@ -112,3 +112,4 @@ Browser Compatibility: Supports all major browsers.
 
 
 ## Customization
+For developers looking to fully customize the workflow or UI of this component without using the widget wrapper provided by the SDK, can use functionalities exposed by the sdk.
