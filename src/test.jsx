@@ -90,7 +90,7 @@ export default function Test() {
                    }catch(e){
                     setLoading(false)
                     setisSelected("")
-                    toast.error("Error loading model",{duration:3000})
+                    toast.error("Error loading model! Refresh",{duration:3000})
                    }
 
             }
@@ -104,7 +104,7 @@ export default function Test() {
                  
                     setLoading(false)
                     setisSelected("")
-                    toast.error("Error loading model",{duration:3000})
+                    toast.error("Error loading model! Refresh",{duration:3000})
                 }
             
             
@@ -129,7 +129,7 @@ export default function Test() {
                  console.log(e)
                  setLoading(false)
                  setisSelected("")
-                 toast.error("Error loading model",{duration:3000})
+                 toast.error("Error loading model! Refresh",{duration:3000})
                 }
               }
 
@@ -171,7 +171,7 @@ export default function Test() {
                         console.log(e)
                         setLoading(false)
                         setisSelected("")
-                        toast.error("Error loading model",{duration:3000})
+                        toast.error("Error loading model! Refresh",{duration:3000})
                         
                        }
                   }
@@ -180,29 +180,38 @@ export default function Test() {
 
 
                 async function detectFaces() {
-                    if(!isVideo){
-                       return
-                     }
-                    let inputElement = videoRef.current
-                    let flipHorizontal = isVideo;
-                    await model.estimateFaces
-                        ({
-                            input: inputElement,
-                            returnTensors: false,
-                            flipHorizontal: flipHorizontal,
-                            predictIrises: false
-                        }).then(predictions => {
-                       
-                        let confident_predictions = predictions.filter(function(p) {
-                            return p.faceInViewConfidence > 0.5;
-                        });
-                        console.log(confident_predictions,"ppp")
-                        setPredictions(confident_predictions)
-                        livepeerAR.drawMask(confident_predictions,isVideo,videoRef,img);
-                        if(isVideo){
-                            requestAnimationFrame(detectFaces)
-                         }
-                     });
+                    try{
+                        
+                        let inputElement = videoRef.current
+                        let flipHorizontal = isVideo;
+                        await model.estimateFaces
+                            ({
+                                input: inputElement,
+                                returnTensors: false,
+                                flipHorizontal: flipHorizontal,
+                                predictIrises: false
+                            }).then(predictions => {
+                           
+                            let confident_predictions = predictions.filter(function(p) {
+                                return p.faceInViewConfidence > 0.5;
+                            });
+                            console.log(confident_predictions,"ppp")
+                            setPredictions(confident_predictions)
+                            livepeerAR.drawMask(confident_predictions,isVideo,videoRef,img);
+                            if(isVideo){
+                                requestAnimationFrame(detectFaces)
+                             }
+                         });
+                         if(!isVideo){
+                            return
+                          }
+
+                      }catch(e){
+                        toast.error("Error! Mask filters still under dev",{duration:3000})
+
+                      }         
+                  
+                   
                  }
                  const { getRootProps } = useDropzone({
                     onDrop: files => {
