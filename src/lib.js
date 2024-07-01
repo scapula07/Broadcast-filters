@@ -80,7 +80,7 @@ export const livepeerAR= {
                    document.getElementById('canvas').appendChild(maskElement);
                 } 
                  maskKeyPointIndexs.forEach((index, i) => {
-                    const coordinate = getCoordinate(keypoints[index][0], keypoints[index][1],videoRef);
+                    const coordinate = getCoordinate(keypoints[index][0], keypoints[index][1],videoRef,isVideo);
                     let dot;
                     if (dots.length > i) {
                         dot = dots[i];
@@ -152,7 +152,7 @@ export const livepeerAR= {
 
 
 
-function getCoordinate(x, y,videoRef) {
+function getCoordinate(x, y,videoRef,isVideo) {
     if (isVideo) {
         if (window.innerWidth / window.innerHeight >= videoRef.current.width / videoRef.current.height) {
             const ratio = document.getElementById('canvas').clientHeight / videoRef.current.height;

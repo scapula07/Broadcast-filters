@@ -66,7 +66,7 @@ export default function Test() {
             const [isSelect,setisSelected]=useState("")
             const [ predictions,setPredictions]=useState([])
             const [ detectFace,setDetectFace]=useState(false)
-
+            const [bgMask,setMask]=useState({})
             const [isLoading,setLoading]=useState(true)
             const [url, setUrl] = useState("https://models.readyplayer.me/6460d95f9ae10f45bffb2864.glb?morphTargets=ARKit&textureAtlas=1024");
 
@@ -380,6 +380,7 @@ export default function Test() {
                                                                 videoElement={videoElement}
                                                                 videoRef={videoRef}
                                                                 canvasRef={ canvasRef }
+                                                                setMask={setMask}
                                                           />
                                                           :
                                                           <>

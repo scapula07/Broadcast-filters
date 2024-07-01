@@ -11,7 +11,8 @@ export default function Selector({
                             canvasRef,
                             img,
                             deepAR,
-                            net
+                            net,
+                            setMask
                                 }) {
     let data
     const [bgImage,setImage]=useState("")
@@ -27,7 +28,8 @@ export default function Selector({
           break;
         case 'Mask filters':
           data=masks
-          img=masks[0]
+         
+          setMask(masks[0])
           break;
         default:
           data=backgrounds
@@ -51,7 +53,8 @@ export default function Selector({
               setImage(src?.img)
               break;
             case 'Mask filters':
-                img=src
+             
+                setMask(src)
                 setImage(src)
                 break;
       
