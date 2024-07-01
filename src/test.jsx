@@ -207,6 +207,9 @@ export default function Test() {
                           }
 
                       }catch(e){
+                        if(!isVideo){
+                            return
+                           }
                         toast.error("Error! Mask filters still under dev",{duration:3000})
 
                       }         
