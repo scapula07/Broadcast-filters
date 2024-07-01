@@ -83,22 +83,31 @@ Browser Compatibility: Supports all major browsers.
       import bg1 from "../assets/bg.jpeg"
       import bg2 from "../assets/bg1.jpg"
       import bg3 from "../assets/bg2.jpg"
-      import bg4 from "../assets/bg3.jpg"
-      import bg5 from "../assets/bg4.jpg"
-      import bg6 from "../assets/bg5.jpg"
+
       
       export const backgrounds=[
           bg1,
           bg2,
           bg3,
-          bg4,
-          bg5,
-          bg6
-      ]
+         ]
 
    ```
-3. AR filters- Effects and face(mask) filters
-4. AR Faceless streaming  
+2. AR filters- Effects and face(mask) filters : the sdk can render filters in your video,by passing an arrage of images or gltf files to the wrapper ,with mode set to 'FACE' | 'DEEPAR'
+```js
+      export const filters=[
+          {
+              img:"/effect/Burning Effect/fire/frame000000.png",
+              mdl:"/effects/Burning Effect/burning_effect.deepar"
+          },
+          {
+              img:"/effect/Flower Face/textures/vegg_diffuse.png",
+              mdl:"/effect/Flower Face/flower_face.deepar",
+      
+          },
+      ]
+```
+
+3. AR Faceless streaming  
 
 
 
