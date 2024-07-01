@@ -29,6 +29,7 @@ Browser Compatibility: Supports all major browsers.
     import * as Broadcast from "@livepeer/react/broadcast";
     import { getIngest } from "@livepeer/react/external";
 
+    ....
     <BroadcastAR
          videoRef={videoRef}
          isSelect={isSelect}
@@ -75,3 +76,12 @@ Browser Compatibility: Supports all major browsers.
    ]
 
 ```
+
+## Features
+1. Virtual backgrounds
+2. AR filters- Effects and face(mask) filters
+3. AR Faceless streaming  
+
+
+
+## Customization
