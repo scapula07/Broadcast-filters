@@ -26,6 +26,7 @@ import  Selector from "./components/selector"
 import Avatar from "./components/avater"
 
 let net=null
+let model=null
 let img=""
 let deepAR;
 let faceLandmarker;
@@ -33,6 +34,9 @@ let lastVideoTime = -1;
 let blendshapes = [];
 let rotation;
 let headMesh= [];
+let maskKeyPointIndexs = [10, 234, 152, 454]
+let maskArray= [];
+
 
 const options = {
   baseOptions: {
@@ -56,10 +60,12 @@ export default function Test() {
             const canvasRef = useRef(null);
 
 
-            const [isCamOnly,setCamOnly]=useState(false)
+            const [isVideo,setisVideo]=useState(false)
             const [isCollapse,setCollapseTab]=useState(true)
             const [selectVr,setSelectedVr]=useState("")
             const [isSelect,setisSelected]=useState("")
+            const [ predictions,setPredictions]=useState([])
+            const [ detectFace,setDetectFace]=useState(false)
 
             const [isLoading,setLoading]=useState(true)
             const [url, setUrl] = useState("https://models.readyplayer.me/6460d95f9ae10f45bffb2864.glb?morphTargets=ARKit&textureAtlas=1024");
@@ -71,9 +77,9 @@ export default function Test() {
                 navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
                     videoRef.current.srcObject = stream;
             
-                    videoRef.current.addEventListener("loadeddata",console.log(stream));
+                    videoRef.current.addEventListener("loadeddata",detectFaces);
                   });
-               }, []);
+               }, [isVideo]);
 
 
             async function setUpBodyPix() {
@@ -133,12 +139,14 @@ export default function Test() {
                         let nowInMs = Date.now();
                     if (lastVideoTime !== videoRef.current.currentTime) {
                         lastVideoTime = videoRef.current.currentTime;
-                        const faceLandmarkerResult = faceLandmarker.detectForVideo(videoRef.current, nowInMs);
+                        const faceLandmarkerResult = faceLandmarker.
+                                                     detectForVideo(videoRef.current, nowInMs);
                 
                     if (faceLandmarkerResult.faceBlendshapes && faceLandmarkerResult.faceBlendshapes.length > 0 && faceLandmarkerResult.faceBlendshapes[0].categories) {
                         blendshapes = faceLandmarkerResult.faceBlendshapes[0].categories;
                 
-                        const matrix = faceLandmarkerResult?.facialTransformationMatrixes?.[0]?.data ? new Matrix4().fromArray(faceLandmarkerResult.facialTransformationMatrixes[0].data) : null;
+                        const matrix = faceLandmarkerResult?.facialTransformationMatrixes?.[0]?.data ? new Matrix4().
+                                           fromArray(faceLandmarkerResult.facialTransformationMatrixes[0].data) : null;
                         rotation = new Euler().setFromRotationMatrix(matrix);
             
                         const stream = canvasElement.captureStream(30); 
@@ -149,8 +157,54 @@ export default function Test() {
             
                        window.requestAnimationFrame(predict);
                  }
+
+                const setupFaceDetectionModel=async()=>{
+                         setLoading(true)
+                      try{                    
+                          model = await livepeerAR.setUpFaceDetectionModel()
+                          console.log(model,"mdl")
+                          setisVideo(true);
+                          setDetectFace(true);
+                          setLoading(false)
+                    
+                       }catch(e){
+                        console.log(e)
+                        setLoading(false)
+                        setisSelected("")
+                        toast.error("Error loading model",{duration:3000})
+                        
+                       }
+                  }
             
-                const { getRootProps } = useDropzone({
+             
+
+
+                async function detectFaces() {
+                    if(!isVideo){
+                       return
+                     }
+                    let inputElement = videoRef.current
+                    let flipHorizontal = isVideo;
+                    await model.estimateFaces
+                        ({
+                            input: inputElement,
+                            returnTensors: false,
+                            flipHorizontal: flipHorizontal,
+                            predictIrises: false
+                        }).then(predictions => {
+                       
+                        let confident_predictions = predictions.filter(function(p) {
+                            return p.faceInViewConfidence > 0.5;
+                        });
+                        console.log(confident_predictions,"ppp")
+                        setPredictions(confident_predictions)
+                        livepeerAR.drawMask(confident_predictions,isVideo,videoRef,img);
+                        if(isVideo){
+                            requestAnimationFrame(detectFaces)
+                         }
+                     });
+                 }
+                 const { getRootProps } = useDropzone({
                     onDrop: files => {
                         const file = files[0];
                         const reader = new FileReader();
@@ -160,6 +214,9 @@ export default function Test() {
                     reader.readAsDataURL(file);
                     }
                 });
+
+
+
         
 
       
@@ -270,7 +327,7 @@ export default function Test() {
                                             {
                                                 icon:<FaMasksTheater />,
                                                 title:"Mask filters",
-                                                click:()=>{}
+                                                click:()=>setupFaceDetectionModel()
 
                                             },
                                             {

@@ -2,6 +2,7 @@ import React,{useState,useEffect} from 'react'
 import image from "../assets/bg.jpeg";
 import { backgrounds } from '../data/backgrounds';
 import { filters } from '../data/filters';
+import {masks} from "../data/mask"
 
 export default function Selector({
                             selected
@@ -19,16 +20,16 @@ export default function Selector({
 
      switch (selected) {
         case 'Virtual backgrounds':
-          console.log('You selected apple.');
           data=backgrounds
           break;
         case 'DeepAR filters':
-          console.log('You selected banana.');
           data=filters
           break;
-  
+        case 'Mask filters':
+          data=masks
+          img=masks[0]
+          break;
         default:
-          console.log('Unknown fruit.');
           data=backgrounds
       }
 
@@ -38,22 +39,23 @@ export default function Selector({
 
 
       const change=(src)=>{
-        img=""
+             img=""
          switch (selected) {
             case 'Virtual backgrounds':
-              console.log('You selected apple.');
               img=src
               startVirtualBackground(img)
               setImage(src)
               break;
             case 'DeepAR filters':
-              console.log('You selected banana.');
               switchFilter(src?.mdl)
               setImage(src?.img)
               break;
+            case 'Mask filters':
+                img=src
+                setImage(src)
+                break;
       
             default:
-              console.log('Unknown fruit.');
               data=backgrounds
           }
 
@@ -85,49 +87,31 @@ export default function Selector({
   
               const background = { r: 0, g: 0, b: 0, a: 0 };
               const mask = bodyPix.toMask(segmentation, background, { r: 0, g: 0, b: 0, a: 255 });
-  
-              
-           
-  
+
               const canvasElement = canvasRef.current; 
               canvasElement.width = videoElement.videoWidth;
               canvasElement.height = videoElement.videoHeight;
-  
               const ctx = canvasElement?.getContext("2d")
                
-              const maskBlurAmount = 5; 
-              const opacity = 0.5; 
-  
-              if (mask) {
-                    
-                  ctx.putImageData(mask, 0, 0);
-                  ctx.globalCompositeOperation = 'source-in';
-  
-               
+              if (mask) {           
+                      ctx.putImageData(mask, 0, 0);
+                      ctx.globalCompositeOperation = 'source-in';       
                   if (backgroundImage.complete) {
                       ctx.drawImage(backgroundImage, 0, 0, canvasElement.width, canvasElement.height);
-                  } else {
-                    
+                  } else {                   
                       backgroundImage.onload = () => {
-                          ctx.drawImage(backgroundImage, 0, 0, canvasElement.width, canvasElement.height);
+                      ctx.drawImage(backgroundImage, 0, 0, canvasElement.width, canvasElement.height);
                       };
-                  }
-  
-                 
+                  }         
                   ctx.globalCompositeOperation = 'destination-over';
                   ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
                   ctx.globalCompositeOperation = 'source-over';
-  
+                 // Capture stream from canvas
                   const stream = canvasElement.captureStream(30); 
-                  console.log(stream,"Canvas")
-  
-               
-                  await new Promise((resolve) => setTimeout(resolve, 100));
-  
-                
+
+                  await new Promise((resolve) => setTimeout(resolve, 100))             
               }
               requestAnimationFrame(updateCanvas);
-  
               }
               updateCanvas();
 
@@ -140,13 +124,11 @@ export default function Selector({
 
        const switchFilter=async(mdl)=>{
             try{
-                await deepAR.switchEffect(mdl);
-            }catch(e){
+              await deepAR.switchEffect(mdl);
+             }catch(e){
                 console.log(e)
             }
-       }
-       
-        
+        }
       
     
   return(
@@ -164,7 +146,7 @@ export default function Selector({
                                 src={src?.img}
                                 className="h-9 w-8 rounded-full"
                                 />
-                                :
+                                 :
                                 <img 
                                 src={src}
                                 className={img ===src?"h-6 w-6 rounded-full":"h-10"}
