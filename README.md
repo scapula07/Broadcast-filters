@@ -113,3 +113,27 @@ Browser Compatibility: Supports all major browsers.
 
 ## Customization
 For developers looking to fully customize the workflow or UI of this component without using the widget wrapper provided by the SDK, can use functionalities exposed by the sdk.
+
+## DEEPAR and Other integration
+The sdk support the use of DEEPAR filters by integrating DEEPAR library. Developers looking to support DEEPAR filters with the Livepeer stream-from-browser Broadcast component can use the SDK.
+
+```js
+      <BroadcastAR
+         opt={
+               [
+                {
+                 mode:"DEEPAR",
+                 data:filters,
+                 liscence_key:""
+
+                 }
+                ]
+             }
+      >
+    </BroadcastAR>
+
+```
+
+You can get the liscense_key from your DEEPAR developer Dashboard portal
+
+### Other integration: BANUBA coming soon
