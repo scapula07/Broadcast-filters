@@ -77,6 +77,15 @@ export default function Test() {
                 navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
                     videoRef.current.srcObject = stream;
             
+                    videoRef.current.addEventListener("loadeddata",console.log("Loaded"));
+                  });
+               }, []);
+
+            useEffect(() => {
+    
+                navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+                    videoRef.current.srcObject = stream;
+            
                     videoRef.current.addEventListener("loadeddata",detectFaces);
                   });
                }, [isVideo]);
