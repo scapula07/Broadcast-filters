@@ -1,4 +1,4 @@
-# Documentation - Client-side AI compute[Livepeerjs-AR]:A plugin for Livepeer Broadcast component (powered by Livepeer)
+# Client-side AI compute[Livepeerjs-AR]:A plugin for Livepeer Broadcast component
 ## Content
 1. Overview
 2. Installation
